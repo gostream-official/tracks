@@ -48,9 +48,9 @@ jobs:
         with:
           go-version: '1.20'
 
-      # Step 4: build revx.
+      # Step 4: build app.
       - name: Build
-        run: go build -o bin/tracks
+        run: go build -o bin/tracks cmd/main.go
 
       # Step 5: upload build artifacts. 
       - name: Upload artifacts
