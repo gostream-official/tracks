@@ -135,17 +135,16 @@ type UpdateTrackPathValidationError struct {
 //
 // Parameters:
 //
-//	context The current request context.
 //	object 	The injector object.
 //
 // Returns:
 //
 //	The injector if the cast is successful, an error otherwise.
-func GetSafeInjector(context *parallel.Context, object interface{}) (*inject.Injector, error) {
+func GetSafeInjector(object interface{}) (*inject.Injector, error) {
 	injector, ok := object.(inject.Injector)
 
 	if !ok {
-		return nil, fmt.Errorf("createtrack: failed to deduce injector")
+		return nil, fmt.Errorf("updatetrack: failed to deduce injector")
 	}
 
 	return &injector, nil
@@ -378,8 +377,8 @@ func CheckIfArtistExists(store *store.MongoStore[models.ArtistInfo], artistID st
 //
 // Parameters:
 //
-//	request 	The incoming request.
-//	injector 	The injector. Contains injected dependencies.
+//	request The incoming request.
+//	object 	The injector. Contains injected dependencies.
 //
 // Returns:
 //
@@ -390,7 +389,7 @@ func Handler(request *api.APIRequest, object interface{}) *api.APIResponse {
 	log.Infof("[%s] %s: %s", context.ID, request.Method, request.Path)
 	log.Tracef("[%s] request: %s", context.ID, marshal.Quick(request))
 
-	injector, err := GetSafeInjector(context, object)
+	injector, err := GetSafeInjector(object)
 	if err != nil {
 		log.Warnf("[%s] failed to get endpoint injector: %s", context.ID, err)
 		return &api.APIResponse{
@@ -407,8 +406,8 @@ func Handler(request *api.APIRequest, object interface{}) *api.APIResponse {
 		}
 	}
 
-	trackStore := store.NewMongoStore[models.TrackInfo](injector.MongoInstance, "tracks", "tracks")
-	artistStore := store.NewMongoStore[models.ArtistInfo](injector.MongoInstance, "tracks", "artists")
+	trackStore := store.NewMongoStore[models.TrackInfo](injector.MongoInstance, "gostream", "tracks")
+	artistStore := store.NewMongoStore[models.ArtistInfo](injector.MongoInstance, "gostream", "artists")
 
 	trackInfo, err := FindTrackByID(trackStore, id)
 	if err != nil {
